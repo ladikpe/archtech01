@@ -1,0 +1,240 @@
+<?php
+$olevelres = array();  
+foreach($olevel as $result)
+{
+	$olevelres[$result->subject_id] = $result->grade_id;
+}
+?>
+<div style="display: none;" id="resultsContainer">
+	@if(count($olevel) > 0)
+	<div class="ribbon ribbon-clip ribbon-reverse ribbon-success" id="resribbon">
+		@else
+		<div class="ribbon ribbon-clip ribbon-reverse ribbon-success" id="resribbon" style="display: none;">
+			@endif
+			<span class="ribbon-inner" data-toggle="modal" data-target="#viewolevel" title="View">
+				View Records
+			</span>
+		</div>
+		<br>
+		<div id="results">
+			<h4>O'Level Results</h4>
+			<form autocomplete="off">
+				<input type="hidden" name="_olevel_csrf" id="_olevel_csrf" value="{{csrf_token()}}">
+				<div class="row row-lg">
+					<div class="col-md-12">
+						<div class="col-md-12">
+						<div class="form-group">
+					<label class="control-label">Degree Obtained*</label>
+					<select class="form-control" required="required" data-plugin="select2" data-allow-clear="true" id="examtyperes">
+						@if(count($gradeDocs) > 0)
+						@foreach($gradeDocs as $grade)
+						<option value="{{$grade->id}}">{{$grade->docname}}</option>
+						@endforeach
+						@endif
+					</select>
+				</div>
+						</div>
+					</div>
+				</div>
+				@for($subjectCounter = 1; $subjectCounter <= 6; $subjectCounter++)
+				<div class="row row-lg">
+					<div class="col-md-12">
+						<div class="col-md-6">
+							<div class="form-group form-material floating" data-plugin="formMaterial">
+								<select class="form-control" required="required" data-plugin="select2" data-allow-clear="true" id="subject{{$subjectCounter}}">
+									@if(count($subjects) > 0)
+									@foreach($subjects as $subject)
+									<option value="{{$subject->id}}">{{$subject->subject}}</option>
+									@endforeach
+									@endif
+								</select>
+							</div>
+						</div>
+						<div class="col-md-6">
+							<div class="form-group form-material floating" data-plugin="formMaterial">
+								<select class="form-control floating" data-plugin="select2" data-allow-clear="true" id="grade{{$subjectCounter}}">
+									@if(count($grades) > 0)
+									@foreach($grades as $grade)
+									<option value="{{$grade->id}}">{{$grade->grade}}</option>
+									@endforeach
+									@endif
+								</select>
+							</div>
+						</div>
+					</div>
+				</div>
+				@endfor
+				<div class="row row-lg">
+					<div class="col-md-12">
+						<div class="col-md-8 col-md-offset-3">
+							<button type="submit" class="btn btn-icon btn-raised btn-success" id="submitResult"><i class="icon wb-plus"></i> Continue</button>
+						</div>
+					</div>
+				</div>
+			</form>
+		</div>
+
+
+		<!-- Modal -->
+		<div class="modal fade modal-rotate-from-left modal-warning" id="viewolevel" aria-hidden="true" aria-labelledby="exampleModalTitle" role="dialog">
+			<div class="modal-dialog modal-lg">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+							<span aria-hidden="true">×</span>
+						</button>
+						<h4 class="modal-title">O'Level Result</h4>
+					</div>
+					<div class="modal-body">
+						<div class="row row-lg">
+							<div class="col-md-12">
+								<div class="col-md-12">
+									@if(count($olevel) > 0)
+									@foreach($eds as $ed)
+									<div class="panel-group" id="olevelaccordion1{{Auth::user()->id}}{{$ed->id}}" aria-multiselectable="true" role="tablist">
+										<div class="panel">
+											<div class="panel-heading" id="olevel{{$ed->id}}" role="tab">
+												<a class="panel-title" data-toggle="collapse" href="#olevelData{{$ed->id}}" data-parent="#olevelaccordion" aria-expanded="false" aria-controls="olevelData{$ed->id}}">
+													@foreach($gradeDocs as $grade)
+													@if($ed->degree == $grade->id)
+													{{$grade->docname}}
+													@endif
+													@endforeach
+												</a>
+											</div>
+										</div>
+										<div class="panel-collapse collapse" id="olevelData{{$ed->id}}" aria-labelledby="olevel{{$ed->id}}" role="tabpanel">
+											<div class="panel-body">
+												@foreach($olevel as $result)
+												<div class="row row-lg">
+													<div class="col-md-12">
+														<div class="col-md-12">
+															@foreach($subjects as $subject)
+															@if($result->exam_id == $ed->degree)
+															@if($subject->id == $result->subject_id)
+															{{$subject->subject}}
+															<br>
+															@foreach($grades as $grade)
+															<div class="radio-custom radio-default radio-inline" style="margin-bottom: 10px;">
+																<input type="radio" name="edit_subject_" id="edit_grade{{$result->subject_id}}">
+																<label for="edit_grade{{$result->id}}">{{$grade->grade}}</label>
+															</div>
+															@endforeach
+															@endif
+															@endif
+															@endforeach
+														</div>
+													</div>
+													<!--<div class="col-md-12">
+														<div class="col-md-12">
+															<div class="form-group">
+																@foreach($grades as $grade)
+																<div class="radio-custom radio-default radio-inline">
+																	@if($result->grade_id == $grade->id)
+																	<input type="radio" checked="checked" name="edit_subject_" id="edit_grade{{$result->subject_id}}">
+																	@else
+																	<input type="radio" name="edit_subject_" id="edit_grade{{$result->subject_id}}">
+																	@endif
+																	<label for="edit_grade{{$result->id}}">{{$grade->grade}}</label>
+																</div>
+																@endforeach
+															</div>
+														</div>
+													</div>-->
+												</div>
+												@endforeach
+											</div>
+										</div>
+										
+									</div>
+									@endforeach
+									@endif
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-default" data-dismiss="modal"><i class="icon wb-close"></i> Close</button>
+						<button type="button" class="btn btn-primary"><i class="icon wb-check-circle"></i> Save changes</button>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!-- End Modal -->
+	</div>
+	<script type="text/javascript">
+		$("#submitResult").click(function(e){
+			e.preventDefault();
+			var token = $("#_olevel_csrf").val();
+			var examType = $("#examtyperes").val();
+			var subjects = [];
+			var grades   = [];
+
+			for(var i = 1; i <= 6; i++)
+			{
+				subjects[i] = $("#subject"+i).val();
+				grades[i]   = $("#grade"+i).val();
+
+				console.log("Subject: " + subjects[i] + "\t Grade: " + grades[i]);
+			}
+
+			var formData = 
+			{
+				'_token':token, 'type':11, 'examType':examType, 'opcode':2,
+				'subject1':subjects[1], 'grade1':grades[1],
+				'subject2':subjects[2], 'grade2':grades[2],
+				'subject3':subjects[3], 'grade3':grades[3],
+				'subject4':subjects[4], 'grade4':grades[4],
+				'subject5':subjects[5], 'grade5':grades[5],
+				'subject6':subjects[6], 'grade6':grades[6],
+			};
+
+			console.log(formData);
+
+			$.post("/job", formData, function(data,xhr,status){
+				console.log(data);
+				if(data == 1)
+				{
+					toastr.options = {
+						"closeButton":true,
+						"debug":false,
+						"newestOnTop":true,
+						"progressBar":true,
+						"positionClass":"toast-bottom-full-width",
+						"preventDuplicates":false,
+						"onclick":null,
+						"showDuration":"300",
+						"hideDuration":"1000",
+						"timeOut":"5000",
+						"extendedTimeOut":"1000",
+						"showEasing":"swing", 
+						"hideEasing":"linear",
+						"showMethod":"fadeIn",
+						"hideMethod":"fadeOut"
+					};
+					toastr["success"]("O'Level Results Saved.", "Success", toastr.options);
+					$("#reslink").removeClass("text-danger").addClass("text-primary");
+					$("#resribbon").fadeIn("slow");
+				/*$("#accountContainer").hide();
+				$("#biodataContainer").hide();
+				$("#correspondenceContainer").hide();
+				$("#educationContainer").hide();
+				$("#employmentContainer").fadeIn("slow");
+				$("#professionalContainer").hide();
+				$("#skillsContainer").hide();
+				$("#referencesContainer").hide();
+				$("#additionalContainer").hide();
+				$("#previewContainer").hide();*/
+			}
+			else if($data != 1 || status == 500)
+			{
+				var response = "<p>Unfortunately! Your record was not captured. Please reload your browser and try again.</p>";
+				swal({
+					title: "Warning!",
+					text: "" + response,
+					html: true
+				});
+			}
+		});
+		})
+	</script>

@@ -1,0 +1,402 @@
+@extends('layouts.master')
+@section('stylesheets')
+  <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+  <link href="{{ asset('global/vendor/select2/select2.min.css') }}" rel="stylesheet" />
+    <link rel="stylesheet" href="{{asset('global/vendor/bootstrap-datepicker/bootstrap-datepicker.css')}}">
+      <link rel="stylesheet" href="{{ asset('global/vendor/bootstrap-toggle/css/bootstrap-toggle.min.css')}}">
+      <link href="{{ asset('global/vendor/select2/select2.min.css') }}" rel="stylesheet" />
+  <link rel="stylesheet" href="{{asset('global/vendor/webui-popover/webui-popover.css')}}">
+  <link rel="stylesheet" href="{{asset('global/vendor/summernote/summernote.min.css')}}">
+  <style media="screen">
+    .form-cont{
+      border: 1px solid #cccccc;
+      padding: 10px;
+      border-radius: 5px;
+    }
+    #stgcont {
+      list-style: none;
+    }
+    #stgcont li{
+      margin-bottom: 10px;
+    }
+  </style>
+
+@endsection
+@section('content')
+<div class="page ">
+    <div class="page-header">
+      <h1 class="page-title">APER Evaluation</h1>
+      <div class="page-header-actions">
+    <div class="row no-space w-250 hidden-sm-down">
+
+      <div class="col-sm-6 col-xs-12">
+        <div class="counter">
+          <span class="counter-number font-weight-medium">{{date("M j, Y")}}</span>
+
+        </div>
+      </div>
+      <div class="col-sm-6 col-xs-12">
+        <div class="counter">
+          <span class="counter-number font-weight-medium" id="time">{{date('h:i s a')}}</span>
+
+        </div>
+      </div>
+    </div>
+  </div>
+    </div>
+    <div class="page-content container-fluid">
+        @php
+
+            $total=0;
+            $obtainable=0;
+        @endphp
+
+        <div class="panel panel-info ">
+            <div class="panel-heading">
+                <h3 class="panel-title">Aper Evaluation for {{Auth::user()->name}} in {{date('F, Y',strtotime($mp->from))}} to {{date('F, Y',strtotime($mp->to))}} </h3>
+
+            </div>
+            <div class="panel-body">
+                <div style="padding: 10px 0px" class="row">
+                    <div class="col-md-12">
+                        <a class="btn btn-info" class="pop" id="examplePopWithTable" data-title="Keys For Aper" data-delay-show="300"  data-trigger="hover" href="javascript:void(0)">Keys For Aper</a>
+                        <div id="examplePopoverTable" hidden>
+                            <table class="table hover">
+                                <thead>
+                                <tr>
+                                    <th>Score</th>
+                                    <th>Value</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr>
+                                    <td>A</td>
+                                    <td>5</td>
+
+                                </tr>
+                                <tr>
+                                    <td>B</td>
+                                    <td>4</td>
+
+                                </tr>
+                                <tr>
+                                    <td>C</td>
+                                    <td>3</td>
+
+                                </tr>
+                                <tr>
+                                    <td>D</td>
+                                    <td>2</td>
+
+                                </tr>
+                                <tr>
+                                    <td>E</td>
+                                    <td>1</td>
+
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        @if($evaluation->employee_approved==0)
+                        <button id="accept_btn" class="btn btn-success" onclick="acceptEvaluation({{$evaluation->id}})">Accept</button>
+                        <button id="reject_btn" class="btn btn-danger" onclick="rejectEvaluation({{$evaluation->id}})">Reject</button>
+                        @endif
+                        <button class="btn btn-info" onclick="loadPerformanceDiscussion({{$evaluation->id}})">View Performance Discussions</button>
+                        <div class="btn-group" role="group" style="color: #fff;">
+                            <button type="button" class="btn  btn-info dropdown-toggle" id="exampleGroupDrop2" data-toggle="dropdown" aria-expanded="false">
+                                Share <i class="fa fa-share text-white" aria-hidden="true"></i>
+                            </button>
+                            <div style="color:#000;background:#fff ;z-index: 100;" class="dropdown-menu" aria-labelledby="exampleGroupDrop2" role="menu">
+
+                                <a style="color: #000;" class="dropdown-item" href="{{url('aper/export_assessment_excel?employee='.$employee->id.'&mp='.$mp->id)}}" role="menuitem">Export via Excel</a>
+                                <a style="color: #000;" class="dropdown-item" href="{{url('aper/export_assessment_pdf?employee='.$employee->id.'&mp='.$mp->id.'&view=report')}}" role="menuitem">Export via PDF</a>
+                                <a style="color: #000;" class="dropdown-item" href="{{url('aper/export_assessment_pdf?employee='.$employee->id.'&mp='.$mp->id.'&view=template')}}" role="menuitem">Export blank Template</a>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+        <div class="row">
+            <div class="col-md-12 col-xs-12">
+                @forelse($aper_metrics as $metric)
+                    <h4>{{$metric->name}}</h4>
+                    <table class="table table-striped dis">
+                        <thead class="head">
+                        <tr style="background: #62a8eaab;color: #ffffff;">
+                            <th style="text-align:left;padding-left: 10px;width: 45%;">Sub-Metric</th>
+                            <th>A</th>
+                            <th>B</th>
+                            <th >C</th>
+                            <th >D</th>
+                            <th >E</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        @php
+                            $subtotal=0;
+                        @endphp
+                        @forelse($metric->sub_metrics as $sub_metric)
+                            @if(($sub_metric->editable==1 and $sub_metric->user_id==$employee->id)||$sub_metric->editable==0)
+                                @php
+                                    $assessment=$evaluations[$metric->id][$sub_metric->id]['assessment_detail'];
+                                $subtotal+=$assessment->score;
+                                 $obtainable+=5
+
+                                @endphp
+                                <tr>
+                                    <td>{{$sub_metric->name}}</td>
+                                    @for ($i = 5; $i >0; $i--)
+                                        <td>
+                                            <i class="fa {{$i==$assessment->score?'fa-check-circle':''}} text-success"></i>
+
+                                        </td>
+
+                                    @endfor
+
+                                </tr>
+                            @endif
+
+
+                        @empty
+
+                        @endforelse
+                        </tbody>
+                        <tfoot>
+                        <tr>
+                            <th colspan="6"> Sub Total:{{$subtotal}}</th>
+                            @php
+                                $total+=$subtotal;
+                            @endphp
+                        </tr>
+                        </tfoot>
+                    </table>
+            @empty
+            @endforelse
+
+            <!-- End Example Default Accordion -->
+                <ul class="list-group list-group-gap">
+                    <li class="list-group-item bg-blue-grey-100">
+                        <i class="fa fa-check-circle" aria-hidden="true"></i> Obtainable:{{$obtainable}}
+                    </li>
+                    <li class="list-group-item bg-blue-grey-100">
+                        <i class="fa fa-check-circle" aria-hidden="true"></i> Obtained:{{$total}}
+                    </li>
+                    <li class="list-group-item bg-blue-grey-100">
+                        <i class="fa fa-check-circle" aria-hidden="true"></i> Overall Assessment:{{round(($total/$obtainable)*20,2)}}
+                    </li>
+
+                </ul>
+            </div>
+        </div>
+            </div></div>
+        <div class="modal fade in modal-3d-flip-horizontal modal-info" id="approveAperEvaluationModal" aria-hidden="true" aria-labelledby="approveAperEvaluationModal" role="dialog" tabindex="-1">
+            <div class="modal-dialog ">
+                <form class="form-horizontal" id="approveAperEvaluationForm" enctype="multipart/form-data">
+                    <div class="modal-content">
+                        <div class="modal-header" >
+                            <button type="button" class="close" data-dismiss="modal">&times;</button>
+                            <h4 class="modal-title" id="training_title">Approve Aper Evaluation</h4>
+                        </div>
+                        <div class="modal-body">
+
+                            @csrf
+
+                            <div class="form-group">
+                                <label for="">Approve/Reject</label>
+                                <select class="form-control" id="approval" name="approval"  data-allow-clear="true">
+
+                                    <option value="1">Approve</option>
+                                    <option value="2">Reject</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="">Comment</label>
+                                <textarea class="form-control" id="comment" name="comment" style="height: 100px;resize: none;" placeholder="Comment" ></textarea>
+                            </div>
+                            <input type="hidden" name="type" value="save_document_request_approval">
+                            <input type="hidden" name="evaluation_id" id="evaluation_id" value="{{$evaluation->id}}" >
+
+                        </div>
+                        <div class="modal-footer">
+                            <div class="col-xs-12">
+
+                                <div class="form-group">
+
+                                    <button type="submit" class="btn btn-info pull-left">Approve/Reject</button>
+                                    <button type="button" class="btn btn-cancel" data-dismiss="modal">Cancel</button>
+                                </div>
+                                <!-- End Example Textarea -->
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+        @include('aper.modals.performanceDiscussion')
+        @endsection
+@section('scripts')
+
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+<script src="{{asset('global/vendor/select2/select2.min.js')}}"></script>
+<script src="{{asset('global/vendor/bootstrap-table/bootstrap-table.min.js')}}"></script>
+<script type="text/javascript" src="{{ asset('global/vendor/bootstrap-toggle/js/bootstrap-toggle.min.js')}}"></script>
+<script type="text/javascript" src="{{ asset('global/vendor/bootstrap-datepicker/bootstrap-datepicker.min.js')}}"></script>
+        <script src="{{asset('global/vendor/webui-popover/jquery.webui-popover.min.js')}}"></script>
+        <script src="{{asset('global/js/Plugin/webui-popover.js')}}"></script>
+        <script src="{{asset('assets/examples/js/uikit/tooltip-popover.js')}}"></script>
+            <script src="{{asset('global/vendor/summernote/summernote.min.js')}}"></script>
+        <script type="text/javascript">
+            $(function (){
+                $('#pop').webuiPopover({url:'#popContent'});
+            });
+        </script>
+            <script type="text/javascript">
+                $(document).ready(function () {
+                    $('.input-daterange').datepicker({
+                        autoclose: true,
+                        format: 'yyyy-mm-dd'
+                    });
+                    $('#approval').on('change', function () {
+                        type = $(this).val();
+
+                        if (type == 1) {
+
+                            $('#comment').attr('required', false);
+
+                        }
+                        if (type == 2) {
+                            $('#comment').attr('required', true);
+                        }
+
+
+                    });
+                    $(document).on('submit', '#approveAperEvaluationForm', function (event) {
+                        event.preventDefault();
+                        var form = $(this);
+                        var formdata = false;
+                        if (window.FormData) {
+                            formdata = new FormData(form[0]);
+                        }
+                        $.ajax({
+                            url: '{{url('aper')}}',
+                            data: formdata ? formdata : form.serialize(),
+                            cache: false,
+                            contentType: false,
+                            processData: false,
+                            type: 'POST',
+                            success: function (data, textStatus, jqXHR) {
+
+                                if (data == 'success') {
+                                    toastr.success("Changes saved successfully", 'Success');
+                                    $('#approveAperEvaluationModal').modal('toggle');
+                                    location.reload();
+                                } else {
+                                    toastr.error(data);
+                                }
+
+                            },
+                            error: function (data, textStatus, jqXHR) {
+                                jQuery.each(data['responseJSON'], function (i, val) {
+                                    jQuery.each(val, function (i, valchild) {
+                                        toastr.error(valchild[0]);
+                                    });
+                                });
+                            }
+                        });
+
+                    });
+                });
+
+
+                    $(document).ready(function() {
+                        $('.summernote').summernote({
+                            height: 150,
+                        });
+                    });
+
+
+
+                function loadPerformanceDiscussion(evaluation_id){
+
+                    $.get('{{url('aper')}}/performanceDiscussion',{evaluation_id:evaluation_id},function(data){
+                        $('#performanceDiscussionAjax').html(data);
+                        $('#performanceDiscussion').modal('toggle');
+                    })
+
+                }
+                function acceptEvaluation(evaluation_id){
+                    $('.btn').attr('disabled',true);
+
+                    var r = confirm("Are you sure you want to Accept these evaluations ? !");
+                    if (r == true) {
+
+                    $.get('{{url('aper')}}/accept_evaluation',{evaluation_id:evaluation_id,status:1},function(data){
+                         toastr.success('Evaluation Accepted Successfully ');
+                        $('#accept_btn').hide();
+                        $('#reject_btn').hide();
+                    })
+
+                    } else {
+                        $('.btn').attr('disabled',false);
+                        return toastr.info('Operation Cancelled');
+                    }
+
+                }
+                function rejectEvaluation(evaluation_id){
+
+                    $('.btn').attr('disabled',true);
+
+                    var r = confirm("Are you sure you want to reject these evaluations ? !");
+                    if (r == true) {
+
+                        $.get('{{url('aper')}}/accept_evaluation',{evaluation_id:evaluation_id,status:2},function(data){
+                             toastr.success('Evaluation Rejected Successfully ');
+                            $('#accept_btn').hide();
+                            $('#reject_btn').hide();
+                        })
+
+                    } else {
+                        $('.btn').attr('disabled',false);
+                        return toastr.info('Operation Cancelled');
+                    }
+
+                }
+
+                function savePerformance(evaluation_id){
+                    title=$('#Disctitle').val();
+                    discussion=$('.summernote').summernote('code');
+                    if(title==''|| discussion==''){
+                        return toastr.error('Some Fields Empty');
+
+                    }
+                    formData = {
+                        aper_assessment_id:evaluation_id,
+                        type:'saveDiscussion',
+                        title:title,
+                        discussion:discussion,
+                        created_by:{{Auth::user()->id}},
+                            _token:'{{csrf_token()}}'
+                }
+                    $('.btn').attr('disabled',true);
+
+                    var r = confirm("Are you Sure you want to save Performance Discussion ? !");
+                    if (r == true) {
+                        $.post('{{url('aper')}}',formData,function(data){
+                            $('.btn').attr('disabled',false);
+                            $('#performanceDiscussionAjax').html(data);
+                            return toastr.success('Discussion Successfully Saved');
+                        });
+                    } else {
+                        $('.btn').attr('disabled',false);
+                        return toastr.info('Operation Cancelled');
+                    }
+
+
+                }
+
+
+
+            </script>
+
+@endsection

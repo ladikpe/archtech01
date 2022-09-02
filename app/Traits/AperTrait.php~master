@@ -1,0 +1,361 @@
+<?php
+
+
+namespace App\Traits;
+
+
+
+use App\AperAssessment;
+use App\AperAssessmentDetail;
+use App\AperMetric;
+use App\AperPerformanceDiscussion;
+use App\AperSubMetric;
+use App\AperMeasurementPeriod;
+
+use App\Notifications\NotifyHrSavePerformanceDiscussion;
+use App\User;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
+
+trait AperTrait
+
+{
+    public function processGet($route,Request $request)
+    {
+        switch ($route) {
+
+            case 'get_line_manager_user_list':
+                # code...
+                return $this->getEvaluationUserList($request);
+                break;
+            case 'get_evaluation':
+                # code...
+                return $this->getEvaluation($request);
+                break;
+            case 'get_evaluation_assessments_preview':
+                # code...
+                return $this->get_evaluation_assessments_preview($request);
+                break;
+            case 'export_assessment_pdf':
+                # code...
+                return $this->export_assessment_pdf($request);
+                break;
+
+             case 'export_assessment_excel':
+                 # code...
+                 return $this->export_assessment_excel($request);
+                 break;
+            case 'get_employee_evaluation_assessments':
+                # code...
+                return $this->get_employee_evaluation_assessments($request);
+                break;
+            case 'my_evaluations':
+                # code...
+                return $this->my_evaluations($request);
+                break;
+            case  'performanceDiscussion':
+                return $this->getPerformanceDiscussion($request);
+                break;
+            case  'accept_evaluation':
+                return $this->accept_evaluation($request);
+                break;
+
+            default:
+                # code...
+                break;
+
+        }
+    }
+
+    public function processPost(Request $request){
+        // try{
+        switch ($request->type) {
+
+            case 'save_performance_assessment':
+                # code...
+                return $this->save_performance_assessment($request);
+                break;
+            case 'saveDiscussion':
+                return $this->saveDiscussion($request);
+                break;
+
+            default:
+                # code...
+                break;
+        }
+
+    }
+
+    public function getEvaluationUserList(Request $request)
+    {
+
+        $mp=AperMeasurementPeriod::find($request->mp);
+        $manager=Auth::user();
+
+        $users=User::whereHas('managers', function ($query) use($manager) {
+            $query->where('manager_id',  $manager->id);
+        })->where('hiredate','<=',$mp->to)->where('status','!=',2)->get();
+        return view('aper.users_list',compact('users','mp'));
+
+    }
+    function getEvaluation(Request $request){
+        $mp=AperMeasurementPeriod::find($request->mp);
+        $manager=Auth::user();
+        $employee=User::find($request->employee);
+        $reports=User::whereHas('managers', function ($query) use($manager) {
+            $query->where('manager_id',  $manager->id);
+        })->where('hiredate','<=',$mp->to)->where('status','!=',2)->get();
+
+        $evaluations=[];
+        $evaluation=AperAssessment::where(['employee_id'=>$request->employee,'aper_measurement_period_id'=>$request->mp])->first();
+         $aper_metrics=AperMetric::all();
+        if (!$evaluation){
+        $evaluation=AperAssessment::create(['employee_id'=>$request->employee,'manager_id'=>Auth::user()->id,'aper_measurement_period_id'=>$request->mp,
+            'created_by'=>Auth::user()->id,'updated_by'=>Auth::user()->id]);
+        }
+            foreach ($aper_metrics as $metric){
+                $evaluations[$metric->id]['name']=$metric->name;
+               foreach ($metric->sub_metrics as $sub_metric){
+                   if(($sub_metric->editable==1 and $sub_metric->user_id==$employee->id)||$sub_metric->editable==0){
+                       $evaluations[$metric->id][$sub_metric->id]['name']=$sub_metric->name;
+                       $assessment_detail=AperAssessmentDetail::where(['aper_sub_metric_id'=>$sub_metric->id,'aper_assessment_id'=>$evaluation->id,
+                           'user_id'=>$request->employee])->first();
+                       if(!$assessment_detail){
+                           $assessment_detail=AperAssessmentDetail::create(['aper_sub_metric_id'=>$sub_metric->id,'aper_assessment_id'=>$evaluation->id,
+                               'user_id'=>$request->employee,'created_by'=>Auth::user()->id,'updated_by'=>Auth::user()->id,'score'=>0
+                           ]);
+                       }
+                       $evaluations[$metric->id][$sub_metric->id]['assessment_detail']=  $assessment_detail;
+                   }
+               }
+            }
+
+        return view('aper.evaluation',compact('evaluations','evaluation','reports','employee','mp','aper_metrics'));
+    }
+
+    public function save_performance_assessment(Request $request)
+    {
+        $evaluation=AperAssessment::find($request->assessmemt_id);
+        $aper_metrics=AperMetric::all();
+        $total_score=0;
+        $obtainable_total_score=0;
+        $obtainable_score=5;
+        foreach ($aper_metrics as $metric){
+            foreach ($metric->sub_metrics as $sub_metric){
+                if (($sub_metric->editable==1 and $sub_metric->user_id==$evaluation->employee_id)||$sub_metric->editable==0){
+                    $assessment_detail=AperAssessmentDetail::where(['aper_sub_metric_id'=>$sub_metric->id,'aper_assessment_id'=>$evaluation->id,
+                        'user_id'=>$evaluation->employee_id])->first();
+                    $assessment_detail->score=$request['sub_metric_'.$sub_metric->id];
+                    $assessment_detail->updated_by=Auth::user()->id;
+                    $assessment_detail->save();
+                    $total_score+=$assessment_detail->score ;
+                    $obtainable_total_score+=$obtainable_score;
+                }
+            }
+
+        }
+        $evaluation->score=$total_score;
+        $evaluation->employee_approved=0;
+        $evaluation->manager_approved=1;
+        $evaluation->manager_id=Auth::user()->id;
+        $evaluation->manager_approved_date=date('Y-m-d');
+        $evaluation->save();
+        return redirect(url('aper/get_evaluation').'?employee='.$evaluation->employee_id.'&mp='.$evaluation->aper_measurement_period_id)->with('message','Evaluation Saved');
+
+    }
+    public function get_evaluation_assessments_preview(Request $request){
+
+        $mp=AperMeasurementPeriod::find($request->mp);
+        $manager=Auth::user();
+        $employee=User::find($request->employee);
+        $reports=User::whereHas('managers', function ($query) use($manager) {
+            $query->where('manager_id',  $manager->id);
+        })->where('hiredate','<=',$mp->to)->where('status','!=',2)->get();
+
+        $evaluations=[];
+        $evaluation=AperAssessment::where(['employee_id'=>$request->employee,'aper_measurement_period_id'=>$request->mp])->first();
+        $aper_metrics=AperMetric::all();
+        if (!$evaluation){
+            $evaluation=AperAssessment::create(['employee_id'=>$request->employee,'manager_id'=>Auth::user()->id,'aper_measurement_period_id'=>$request->mp,
+                'created_by'=>Auth::user()->id,'updated_by'=>Auth::user()->id]);
+        }
+        foreach ($aper_metrics as $metric){
+            $evaluations[$metric->id]['name']=$metric->name;
+            foreach ($metric->sub_metrics as $sub_metric){
+                if(($sub_metric->editable==1 and $sub_metric->user_id==$employee->id)||$sub_metric->editable==0){
+                    $evaluations[$metric->id][$sub_metric->id]['name']=$sub_metric->name;
+                    $assessment_detail=AperAssessmentDetail::where(['aper_sub_metric_id'=>$sub_metric->id,'aper_assessment_id'=>$evaluation->id,
+                        'user_id'=>$request->employee])->first();
+                    if(!$assessment_detail){
+                        $assessment_detail=AperAssessmentDetail::create(['aper_sub_metric_id'=>$sub_metric->id,'aper_assessment_id'=>$evaluation->id,
+                            'user_id'=>$request->employee,'created_by'=>Auth::user()->id,'updated_by'=>Auth::user()->id,'score'=>0
+                        ]);
+                    }
+                    $evaluations[$metric->id][$sub_metric->id]['assessment_detail']=  $assessment_detail;
+                }
+            }
+        }
+        return view('aper.partials.preview',compact('evaluations','evaluation','reports','employee','mp','aper_metrics'));
+    }
+    public function get_employee_evaluation_assessments(Request $request){
+
+        $mp=AperMeasurementPeriod::find($request->mp);
+
+        $employee=Auth::user();
+
+
+        $evaluations=[];
+        $evaluation=AperAssessment::where(['employee_id'=>$employee->id,'aper_measurement_period_id'=>$request->mp])->first();
+        $aper_metrics=AperMetric::all();
+        if (!$evaluation){
+            return back()->with(['success'=>'You have not been evaluated for this period']);
+        }
+        foreach ($aper_metrics as $metric){
+            $evaluations[$metric->id]['name']=$metric->name;
+            foreach ($metric->sub_metrics as $sub_metric){
+                if(($sub_metric->editable==1 and $sub_metric->user_id==$employee->id)||$sub_metric->editable==0){
+                    $evaluations[$metric->id][$sub_metric->id]['name']=$sub_metric->name;
+                    $assessment_detail=AperAssessmentDetail::where(['aper_sub_metric_id'=>$sub_metric->id,'aper_assessment_id'=>$evaluation->id,
+                        'user_id'=>$employee->id])->first();
+//                    if(!$assessment_detail){
+//                        $assessment_detail=AperAssessmentDetail::create(['aper_sub_metric_id'=>$sub_metric->id,'aper_assessment_id'=>$evaluation->id,
+//                            'user_id'=>$request->employee,'created_by'=>Auth::user()->id,'updated_by'=>Auth::user()->id,'score'=>0
+//                        ]);
+//                    }
+                    $evaluations[$metric->id][$sub_metric->id]['assessment_detail']=  $assessment_detail;
+                }
+            }
+        }
+
+        return view('aper.employee_evaluation',compact('evaluations','evaluation','employee','mp','aper_metrics'));
+    }
+    public function export_assessment_pdf(Request $request){
+        $mp=AperMeasurementPeriod::find($request->mp);
+        $manager=Auth::user();
+        $employee=User::find($request->employee);
+        $reports=User::whereHas('managers', function ($query) use($manager) {
+            $query->where('manager_id',  $manager->id);
+        })->where('hiredate','<=',$mp->to)->where('status','!=',2)->get();
+
+        $evaluations=[];
+        $evaluation=AperAssessment::where(['employee_id'=>$request->employee,'aper_measurement_period_id'=>$request->mp])->first();
+        $aper_metrics=AperMetric::all();
+        if (!$evaluation){
+            $evaluation=AperAssessment::create(['employee_id'=>$request->employee,'manager_id'=>Auth::user()->id,'aper_measurement_period_id'=>$request->mp,
+                'created_by'=>Auth::user()->id,'updated_by'=>Auth::user()->id]);
+        }
+        foreach ($aper_metrics as $metric){
+            $evaluations[$metric->id]['name']=$metric->name;
+            foreach ($metric->sub_metrics as $sub_metric){
+                if(($sub_metric->editable==1 and $sub_metric->user_id==$employee->id)||$sub_metric->editable==0){
+                    $evaluations[$metric->id][$sub_metric->id]['name']=$sub_metric->name;
+                    $assessment_detail=AperAssessmentDetail::where(['aper_sub_metric_id'=>$sub_metric->id,'aper_assessment_id'=>$evaluation->id,
+                        'user_id'=>$request->employee])->first();
+                    if(!$assessment_detail){
+                        $assessment_detail=AperAssessmentDetail::create(['aper_sub_metric_id'=>$sub_metric->id,'aper_assessment_id'=>$evaluation->id,
+                            'user_id'=>$request->employee,'created_by'=>Auth::user()->id,'updated_by'=>Auth::user()->id,'score'=>0
+                        ]);
+                    }
+                    $evaluations[$metric->id][$sub_metric->id]['assessment_detail']=  $assessment_detail;
+                }
+            }
+        }
+
+
+        $view=$request->view;
+
+            //return view();
+            $pdf = \PDF::loadView('aper.partials.evaluation_preview_pdf',compact('evaluations','evaluation','reports','employee','mp','aper_metrics','view'));
+            return @$pdf->download('performance evaluation.pdf');
+
+
+    }
+
+    public function export_assessment_excel(Request $request)
+    {
+        $mp=AperMeasurementPeriod::find($request->mp);
+        $manager=Auth::user();
+        $employee=User::find($request->employee);
+        $reports=User::whereHas('managers', function ($query) use($manager) {
+            $query->where('manager_id',  $manager->id);
+        })->where('hiredate','<=',$mp->to)->where('status','!=',2)->get();
+
+        $evaluations=[];
+        $evaluation=AperAssessment::where(['employee_id'=>$request->employee,'aper_measurement_period_id'=>$request->mp])->first();
+        $aper_metrics=AperMetric::all();
+        if (!$evaluation){
+            $evaluation=AperAssessment::create(['employee_id'=>$request->employee,'manager_id'=>Auth::user()->id,'aper_measurement_period_id'=>$request->mp,
+                'created_by'=>Auth::user()->id,'updated_by'=>Auth::user()->id]);
+        }
+        foreach ($aper_metrics as $metric){
+            $evaluations[$metric->id]['name']=$metric->name;
+            foreach ($metric->sub_metrics as $sub_metric){
+                if(($sub_metric->editable==1 and $sub_metric->user_id==$employee->id)||$sub_metric->editable==0){
+                    $evaluations[$metric->id][$sub_metric->id]['name']=$sub_metric->name;
+                    $assessment_detail=AperAssessmentDetail::where(['aper_sub_metric_id'=>$sub_metric->id,'aper_assessment_id'=>$evaluation->id,
+                        'user_id'=>$request->employee])->first();
+                    if(!$assessment_detail){
+                        $assessment_detail=AperAssessmentDetail::create(['aper_sub_metric_id'=>$sub_metric->id,'aper_assessment_id'=>$evaluation->id,
+                            'user_id'=>$request->employee,'created_by'=>Auth::user()->id,'updated_by'=>Auth::user()->id,'score'=>0
+                        ]);
+                    }
+                    $evaluations[$metric->id][$sub_metric->id]['assessment_detail']=  $assessment_detail;
+                }
+            }
+        }
+
+        return     \Excel::create("Performance Evaluation", function($excel) use ($evaluations,$evaluation,$employee,$mp,$aper_metrics) {
+            $excel->sheet('performance report', function($sheet) use ($evaluations,$evaluation,$employee,$mp,$aper_metrics) {
+
+                $sheet->loadView('aper.partials.evaluation_preview_excel',compact('evaluations','evaluation','employee','mp','aper_metrics'))->setOrientation('landscape');
+            });
+        })->export('xlsx');
+
+    }
+
+    public function my_evaluations(Request $request)
+    {
+        $measurement_periods=\App\AperMeasurementPeriod::all();
+        return view('aper.employee_index',compact('measurement_periods'));
+    }
+    public function getPerformanceDiscussion(Request $request){
+        $discussions=AperPerformanceDiscussion::where('aper_assessment_id',$request->evaluation_id)->get();
+        return view('aper.ajax.performanceDiscussion',compact('discussions'));
+    }
+
+    public function saveDiscussion(Request $request){
+        // could become a potential problem better to use $request->id in the where clause, but this has its own importance
+        $saveDiscussion=AperPerformanceDiscussion::updateOrCreate(['title'=>$request->title,'discussion'=>$request->discussion],$request->except('_token'));
+//        $this->notifyHrAdminSaveDiscussion($saveDiscussion);
+        return $this->getPerformanceDiscussion($request);
+        // response()->json(['status'=>'success','message'=>'Peformance Discussion Succsessfully Saved']);
+
+    }
+
+    public function accept_evaluation(Request $request)
+    {
+         $evaluation =AperAssessment::find($request->evaluation_id);
+        $evaluation->update(['employee_approved'=>$request->status,'employee_approved_date'=>date('Y-m-d')]);
+        return 'success';
+    }
+    public function notifyHrAdminSaveDiscussion($evaluation){
+
+        $Hrusers=\App\User::whereHas('role',function($query){
+            $query->where('manages','all');
+        } )->where('company_id',companyId())->get();
+        foreach($Hrusers as $hr){
+            $hr->notify((new NotifyHrSavePerformanceDiscussion("aper/get_hr_evaluation?employee={$evaluation->bscevaluation->user->id}&mp=$evaluation->evaluation_id",$evaluation->bscevaluation->user->name)));
+
+        }
+    }
+
+    // incase it was requested
+    public function deletePerformanceDiscussion(Request $request){
+        AperPerformanceDiscussion::where('id',$request->id)->delete();
+        return getPerformanceDiscussion($request);
+    }
+
+
+
+}

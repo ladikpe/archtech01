@@ -1,0 +1,85 @@
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title></title>
+
+    <link rel="stylesheet" href="css/bootstrap.min.css" >
+    <style>
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+<div class="input-group mb-3 hidden" id="url_form" style="  padding:100px 10px 10px 10px;">
+    <input type="text" class="form-control" id="hc_url" placeholder="Enter your tenant id">
+    <div class="input-group-prepend">
+        <span class="input-group-text">.hcmatrix.com</span>
+    </div>
+    <div class="input-group-append">
+        <button class="btn btn-success" type="submit" onclick="loadHcm_Url(document.getElementById('hc_url').value.toLowerCase())">
+            Go
+        </button>
+    </div>
+</div>
+
+</body>
+
+<script>
+    window.onpaint = checkUrlAndRedirect();
+
+    function loadHcm_Url(url) {
+        localStorage.setItem('url', url);
+        validated=localStorage.getItem('validated');
+        validateUrl(url,validated)
+
+    }
+
+     function padUrl(url){
+        return `https://${url}.hcmatrix.com/login`;
+    }
+    async function validateUrl(url,validated) {
+
+        var element = document.getElementById("url_form");
+        var elem = document.querySelector('body');
+        if(validated=='yes'){
+            elem.style.backgroundImage = 'url(null.jpg)';
+            window.location = padUrl(url);
+            alert('first');
+            return;
+        }
+        alert(validated);
+        await fetch(padUrl(url)).then((response) => {
+            if (response.ok) {
+                element.classList.add("hidden");
+                localStorage.setItem('validated','yes');
+                window.location =  padUrl(url);
+            }
+        }).catch((reason) => {
+            localStorage.removeItem('url');
+            localStorage.removeItem('validated');
+            element.classList.remove("hidden");
+            elem.style.backgroundImage = 'url(background.PNG)';
+            alert("Invalid Hcmatrix URL");
+        })
+    }
+
+    function checkUrlAndRedirect() {
+
+        localStorage.removeItem('url');
+        url = localStorage.getItem('url');
+        if (url !== undefined && url !== null) {
+            //  console.log(url);
+            validateUrl(url, localStorage.getItem('validated'))
+        } else {
+            var element = document.getElementById("url_form");
+            var elem = document.querySelector('body');
+            elem.style.backgroundImage = 'url(background.PNG)';
+            element.classList.remove("hidden");
+        }
+    }
+
+</script>
+</html>

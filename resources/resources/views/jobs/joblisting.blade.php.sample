@@ -1,0 +1,302 @@
+@extends('layouts.app_guest')
+
+@section('content')
+<script src="../../global/vendor/jquery/jquery.js"></script>
+<script>
+  function url(url)
+  {	
+   window.location=url;
+ }
+</script>
+<style type="text/css">
+  .panel-group .panel-title:after, .panel-group .panel-title:before {
+    position: absolute;
+    top: 15px;
+    right: 30px;
+    font-family: "Web Icons";
+    -webkit-transition: all .3s linear 0s;
+    -o-transition: all .3s linear 0s;
+    transition: all .3s linear 0s;
+    color: #f0ad4e !important;
+    border-color: #d43f3a;
+    font-size: 18px;
+  }
+  a > h4:hover{
+    color: #04c;
+  }
+</style>
+<h1 class="page-title" style="position: relative;left: 10px;top: -10px;margin-bottom: -10px;">Jobs</h1>
+<ol class="breadcrumb">
+  <li class="breadcrumb-item"><a href="javascript:void(0)" onclick="url">Available Jobs</a></li>
+  <li class="breadcrumb-item active">You are Here</li>
+</ol>
+
+<!---<div class="row">
+  <div class="col-md-4 col-xs-12" style="margin-right: -25px;">
+    <select class="form-control" id="experience" data-plugin="select2" data-allow-clear="true">
+      <option value="0">Experience Levels (all)</option>
+      <option value="1">Entry Level</option>
+      <option value="2">1 - 3 Years</option>
+      <option value="3">3 - 5 Years</option>
+      <option value="4">5 - 7 Years</option>
+      <option value="5">7 - 10 Years</option>
+      <option value="6">10 - 15 Years</option>
+      <option value="7">15+</option>
+    </select>
+  </div>
+  <div class="col-md-4 col-xs-12" style="margin-right: -25px;">
+    <select class="form-control" id="experience" data-plugin="select2" data-allow-clear="true">
+      <option value="0">Departments (all)</option>
+      <option value="1">Information Technology</option>
+      <option value="2">Marketing and Sales</option>
+      <option value="3">Human Resource</option>
+      <option value="4">I.T. Support</option>
+      <option value="5">Legal Dept.</option>
+      <option value="6">Health Dept.</option>
+    </select>
+  </div>
+  <div class="col-md-4 col-xs-12">
+    <button type="button" class="btn btn-sm btn-icon btn-warning pull-right" style="position: relative;top: 2px;left: 45px;"><i class="icon wb-search"></i></button>
+    <select class="form-control" id="location" data-plugin="select2" data-allow-clear="true" style="width: 100%;margin-right: -55px;">
+      <option value="0">Location (all)</option>
+      @foreach($states as $state)
+      <option value="{{$state->id}}">{{$state->state}}</option>
+      @endforeach
+    </select>
+  </div>
+</div>-->
+<br>
+<div class="panel" style="margin-bottom: 4px;">
+  <div class="panel-body">
+    <div class="panel-group panel-group-simple" id="siteMegaAccordion" aria-multiselectable="true" role="tablist">
+      <div class="ribbon ribbon-clip ribbon-reverse ribbon-success">
+        <span class="ribbon-inner" data-toggle="tooltip" title="Apply" onclick="url('{{url('job')}}/jobs?id=1')">
+          Apply Here
+        </span>
+      </div>
+      <div class="panel">
+        <div class="panel-heading" id="siteMegaAccordionHeadingOne" role="tab">
+          <a class="panel-title" data-toggle="collapse" href="#siteMegaCollapseOne" data-parent="#siteMegaAccordion" aria-expanded="false" aria-controls="siteMegaCollapseOne">
+            <h4 class="text-warning">Experience</h4>
+          </a>
+          <span class="text-default">
+            In luctus semper libero et fringilla. Nullam facilisis volutpat augue, non volutpat magna pretium nec. Cras venenatis hendrerit orci, eget ultricies libero tincidunt at. Nulla porta tristique pellentesque. Aenean ultrices dui in tincidunt accumsan. Mauris ac vulputate diam.
+          </span>
+        </div>
+        <div class="panel-collapse collapse" id="siteMegaCollapseOne" aria-labelledby="siteMegaAccordionHeadingOne" role="tabpanel">
+          <div class="panel-body">
+            <div class="row">
+              <div class="col-md-12 col-xs-12">
+                <h4>SUMMARY</h4>
+                <ul>
+                  <li>
+                    In luctus semper libero et fringilla. Nullam facilisis volutpat augue, non volutpat magna pretium nec. Cras venenatis hendrerit orci, eget ultricies libero tincidunt at. Nulla porta tristique pellentesque. Aenean ultrices dui in tincidunt accumsan. Mauris ac vulputate diam. Duis imperdiet sapien ac urna eleifend tincidunt. In aliquam ornare auctor. Phasellus sapien nisl, pretium nec feugiat at, interdum id purus. Nullam eget purus et orci vestibulum auctor. Nunc volutpat augue lacinia, finibus nulla ut, venenatis elit. Nam eu venenatis eros. Ut dui quam, suscipit ut iaculis at, consectetur nec dolor. Curabitur ut mi eu odio tempus mollis. In a iaculis lacus. Ut sed nisl fringilla odio blandit lacinia sed nec urna.
+                  </li>
+                </ul>
+              </div>
+              <div class="col-md-12 col-xs-12">
+                <h4>EXPERIENCE REQUIRED</h4>
+                <ul>
+                  <li>
+                    In luctus semper libero et fringilla. Nullam facilisis volutpat augue, non volutpat magna pretium nec. Cras venenatis hendrerit orci, eget ultricies libero tincidunt at. Nulla porta tristique pellentesque. Aenean ultrices dui in tincidunt accumsan.
+                  </li>
+                  <li>
+                    In luctus semper libero et fringilla. Nullam facilisis volutpat augue, non volutpat magna pretium nec. Cras venenatis hendrerit orci, eget ultricies libero tincidunt at. Nulla porta tristique pellentesque. Aenean ultrices dui in tincidunt accumsan.
+                  </li>
+                </ul>
+              </div>
+              <div class="col-md-12 col-xs-12">
+                <h4>JOB DESCRIPTION</h4>
+                <ul>
+                  <li>
+                    In luctus semper libero et fringilla. Nullam facilisis volutpat augue, non volutpat magna pretium nec. Cras venenatis hendrerit orci, eget ultricies libero tincidunt at. Nulla porta tristique pellentesque. Aenean ultrices dui in tincidunt accumsan. Mauris ac vulputate diam. Duis imperdiet sapien ac urna eleifend tincidunt. In aliquam ornare auctor. Phasellus sapien nisl, pretium nec feugiat at, interdum id purus. Nullam eget purus et orci vestibulum auctor. Nunc volutpat augue lacinia, finibus nulla ut, venenatis elit. Nam eu venenatis eros. Ut dui quam, suscipit ut iaculis at, consectetur nec dolor. Curabitur ut mi eu odio tempus mollis. In a iaculis lacus. Ut sed nisl fringilla odio blandit lacinia sed nec urna.
+                  </li>
+                </ul>
+              </div>
+              <div class="col-md-12 col-xs-12">
+                <h4>EDUCATIONAL REQUIREMENTS</h4>
+                <ul>
+                  <li>Minimum of B.Sc. /HND or degree equivalent in Computer Science,Engineering or other related field of study.</li>
+                </ul>
+              </div>
+              <div class="col-md-12 col-xs-12">
+                <h4>OTHER SKILLS</h4>
+                <ul>
+                  <li>
+                    In luctus semper libero et fringilla. Nullam facilisis volutpat augue, non volutpat magna pretium nec. Cras venenatis hendrerit orci, eget ultricies libero tincidunt at. Nulla porta tristique pellentesque. Aenean ultrices dui in tincidunt accumsan. Mauris ac vulputate diam. Duis imperdiet sapien ac urna eleifend tincidunt. In aliquam ornare auctor.
+                  </li>
+                  <li>
+                    In luctus semper libero et fringilla. Nullam facilisis volutpat augue, non volutpat magna pretium nec. Cras venenatis hendrerit orci, eget ultricies libero tincidunt at. Nulla porta tristique pellentesque. Aenean ultrices dui in tincidunt accumsan. Mauris ac vulputate diam. Duis imperdiet sapien ac urna eleifend tincidunt. In aliquam ornare auctor.
+                  </li>
+                  <li>
+                    In luctus semper libero et fringilla. Nullam facilisis volutpat augue, non volutpat magna pretium nec. Cras venenatis hendrerit orci, eget ultricies libero tincidunt at. Nulla porta tristique pellentesque. Aenean ultrices dui in tincidunt accumsan. Mauris ac vulputate diam. Duis imperdiet sapien ac urna eleifend tincidunt. In aliquam ornare auctor.
+                  </li>
+                </ul>
+              </div>
+              <div class="col-md-12 col-xs-12 pull-right">
+                <button type="button" class="btn btn-raised btn-success btn-lg" onclick="url('{{url('job')}}/jobs?id=1')"><i class="icon wb-dropright"></i> Apply</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="panel" style="margin-bottom: 4px;">
+  <div class="panel-body">
+    <div class="panel-group panel-group-simple" id="siteMegaAccordion" aria-multiselectable="true" role="tablist">
+      <div class="ribbon ribbon-clip ribbon-reverse ribbon-success">
+        <span class="ribbon-inner" data-toggle="tooltip" title="Apply" onclick="url('{{url('job')}}/jobs?id=1')">
+          Apply Here
+        </span>
+      </div>
+      <div class="panel">
+        <div class="panel-heading" id="siteMegaAccordionHeadingTwo" role="tab">
+          <a class="panel-title" data-toggle="collapse" href="#siteMegaCollapseTwo" data-parent="#siteMegaAccordion" aria-expanded="false" aria-controls="siteMegaCollapseTwo">
+            <h4 class="text-warning">Experience</h4>
+            <span class="text-default">
+              In luctus semper libero et fringilla. Nullam facilisis volutpat augue, non volutpat magna pretium nec. Cras venenatis hendrerit orci, eget ultricies libero tincidunt at. Nulla porta tristique pellentesque. Aenean ultrices dui in tincidunt accumsan. Mauris ac vulputate diam.
+            </span>
+          </a>
+        </div>
+        <div class="panel-collapse collapse" id="siteMegaCollapseTwo" aria-labelledby="siteMegaAccordionHeadingTwo" role="tabpanel">
+          <div class="panel-body">
+            <div class="row">
+              <div class="col-md-12 col-xs-12">
+                <h4>SUMMARY</h4>
+                <ul>
+                  <li>
+                    In luctus semper libero et fringilla. Nullam facilisis volutpat augue, non volutpat magna pretium nec. Cras venenatis hendrerit orci, eget ultricies libero tincidunt at. Nulla porta tristique pellentesque. Aenean ultrices dui in tincidunt accumsan. Mauris ac vulputate diam. Duis imperdiet sapien ac urna eleifend tincidunt. In aliquam ornare auctor. Phasellus sapien nisl, pretium nec feugiat at, interdum id purus. Nullam eget purus et orci vestibulum auctor. Nunc volutpat augue lacinia, finibus nulla ut, venenatis elit. Nam eu venenatis eros. Ut dui quam, suscipit ut iaculis at, consectetur nec dolor. Curabitur ut mi eu odio tempus mollis. In a iaculis lacus. Ut sed nisl fringilla odio blandit lacinia sed nec urna.
+                  </li>
+                </ul>
+              </div>
+              <div class="col-md-12 col-xs-12">
+                <h4>EXPERIENCE REQUIRED</h4>
+                <ul>
+                  <li>
+                    In luctus semper libero et fringilla. Nullam facilisis volutpat augue, non volutpat magna pretium nec. Cras venenatis hendrerit orci, eget ultricies libero tincidunt at. Nulla porta tristique pellentesque. Aenean ultrices dui in tincidunt accumsan.
+                  </li>
+                  <li>
+                    In luctus semper libero et fringilla. Nullam facilisis volutpat augue, non volutpat magna pretium nec. Cras venenatis hendrerit orci, eget ultricies libero tincidunt at. Nulla porta tristique pellentesque. Aenean ultrices dui in tincidunt accumsan.
+                  </li>
+                </ul>
+              </div>
+              <div class="col-md-12 col-xs-12">
+                <h4>JOB DESCRIPTION</h4>
+                <ul>
+                  <li>
+                    In luctus semper libero et fringilla. Nullam facilisis volutpat augue, non volutpat magna pretium nec. Cras venenatis hendrerit orci, eget ultricies libero tincidunt at. Nulla porta tristique pellentesque. Aenean ultrices dui in tincidunt accumsan. Mauris ac vulputate diam. Duis imperdiet sapien ac urna eleifend tincidunt. In aliquam ornare auctor. Phasellus sapien nisl, pretium nec feugiat at, interdum id purus. Nullam eget purus et orci vestibulum auctor. Nunc volutpat augue lacinia, finibus nulla ut, venenatis elit. Nam eu venenatis eros. Ut dui quam, suscipit ut iaculis at, consectetur nec dolor. Curabitur ut mi eu odio tempus mollis. In a iaculis lacus. Ut sed nisl fringilla odio blandit lacinia sed nec urna.
+                  </li>
+                </ul>
+              </div>
+              <div class="col-md-12 col-xs-12">
+                <h4>EDUCATIONAL REQUIREMENTS</h4>
+                <ul>
+                  <li>Minimum of B.Sc. /HND or degree equivalent in Computer Science,Engineering or other related field of study.</li>
+                </ul>
+              </div>
+              <div class="col-md-12 col-xs-12">
+                <h4>OTHER SKILLS</h4>
+                <ul>
+                  <li>
+                    In luctus semper libero et fringilla. Nullam facilisis volutpat augue, non volutpat magna pretium nec. Cras venenatis hendrerit orci, eget ultricies libero tincidunt at. Nulla porta tristique pellentesque. Aenean ultrices dui in tincidunt accumsan. Mauris ac vulputate diam. Duis imperdiet sapien ac urna eleifend tincidunt. In aliquam ornare auctor.
+                  </li>
+                  <li>
+                    In luctus semper libero et fringilla. Nullam facilisis volutpat augue, non volutpat magna pretium nec. Cras venenatis hendrerit orci, eget ultricies libero tincidunt at. Nulla porta tristique pellentesque. Aenean ultrices dui in tincidunt accumsan. Mauris ac vulputate diam. Duis imperdiet sapien ac urna eleifend tincidunt. In aliquam ornare auctor.
+                  </li>
+                  <li>
+                    In luctus semper libero et fringilla. Nullam facilisis volutpat augue, non volutpat magna pretium nec. Cras venenatis hendrerit orci, eget ultricies libero tincidunt at. Nulla porta tristique pellentesque. Aenean ultrices dui in tincidunt accumsan. Mauris ac vulputate diam. Duis imperdiet sapien ac urna eleifend tincidunt. In aliquam ornare auctor.
+                  </li>
+                </ul>
+              </div>
+              <div class="col-md-12 col-xs-12 pull-right">
+                <button type="button" class="btn btn-raised btn-success btn-lg" onclick="url('{{url('job')}}/jobs?id=1')"><i class="icon wb-dropright"></i> Apply</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="panel" style="margin-bottom: 4px;">
+  <div class="ribbon ribbon-clip ribbon-reverse ribbon-success">
+    <span class="ribbon-inner" data-toggle="tooltip" title="Apply" onclick="url('{{url('job')}}/jobs?id=1')">
+      Apply Here
+    </span>
+  </div>
+  <div class="panel-body">
+    <div class="panel-group panel-group-simple" id="siteMegaAccordion" aria-multiselectable="true" role="tablist">
+      <div class="panel">
+        <div class="panel-heading" id="siteMegaAccordionHeadingThree" role="tab">
+          <a class="panel-title" data-toggle="collapse" href="#siteMegaCollapseThree" data-parent="#siteMegaAccordion" aria-expanded="false" aria-controls="siteMegaCollapseThree">
+            <h4 class="text-warning">Experience</h4>
+            <span class="text-default">
+              In luctus semper libero et fringilla. Nullam facilisis volutpat augue, non volutpat magna pretium nec. Cras venenatis hendrerit orci, eget ultricies libero tincidunt at. Nulla porta tristique pellentesque. Aenean ultrices dui in tincidunt accumsan. Mauris ac vulputate diam.
+            </span>
+          </a>
+        </div>
+        <div class="panel-collapse collapse" id="siteMegaCollapseThree" aria-labelledby="siteMegaAccordionHeadingThree" role="tabpanel">
+          <div class="panel-body">
+            <div class="row">
+              <div class="col-md-12 col-xs-12">
+                <h4>SUMMARY</h4>
+                <ul>
+                  <li>
+                    In luctus semper libero et fringilla. Nullam facilisis volutpat augue, non volutpat magna pretium nec. Cras venenatis hendrerit orci, eget ultricies libero tincidunt at. Nulla porta tristique pellentesque. Aenean ultrices dui in tincidunt accumsan. Mauris ac vulputate diam. Duis imperdiet sapien ac urna eleifend tincidunt. In aliquam ornare auctor. Phasellus sapien nisl, pretium nec feugiat at, interdum id purus. Nullam eget purus et orci vestibulum auctor. Nunc volutpat augue lacinia, finibus nulla ut, venenatis elit. Nam eu venenatis eros. Ut dui quam, suscipit ut iaculis at, consectetur nec dolor. Curabitur ut mi eu odio tempus mollis. In a iaculis lacus. Ut sed nisl fringilla odio blandit lacinia sed nec urna.
+                  </li>
+                </ul>
+              </div>
+              <div class="col-md-12 col-xs-12">
+                <h4>EXPERIENCE REQUIRED</h4>
+                <ul>
+                  <li>
+                    In luctus semper libero et fringilla. Nullam facilisis volutpat augue, non volutpat magna pretium nec. Cras venenatis hendrerit orci, eget ultricies libero tincidunt at. Nulla porta tristique pellentesque. Aenean ultrices dui in tincidunt accumsan.
+                  </li>
+                  <li>
+                    In luctus semper libero et fringilla. Nullam facilisis volutpat augue, non volutpat magna pretium nec. Cras venenatis hendrerit orci, eget ultricies libero tincidunt at. Nulla porta tristique pellentesque. Aenean ultrices dui in tincidunt accumsan.
+                  </li>
+                </ul>
+              </div>
+              <div class="col-md-12 col-xs-12">
+                <h4>JOB DESCRIPTION</h4>
+                <ul>
+                  <li>
+                    In luctus semper libero et fringilla. Nullam facilisis volutpat augue, non volutpat magna pretium nec. Cras venenatis hendrerit orci, eget ultricies libero tincidunt at. Nulla porta tristique pellentesque. Aenean ultrices dui in tincidunt accumsan. Mauris ac vulputate diam. Duis imperdiet sapien ac urna eleifend tincidunt. In aliquam ornare auctor. Phasellus sapien nisl, pretium nec feugiat at, interdum id purus. Nullam eget purus et orci vestibulum auctor. Nunc volutpat augue lacinia, finibus nulla ut, venenatis elit. Nam eu venenatis eros. Ut dui quam, suscipit ut iaculis at, consectetur nec dolor. Curabitur ut mi eu odio tempus mollis. In a iaculis lacus. Ut sed nisl fringilla odio blandit lacinia sed nec urna.
+                  </li>
+                </ul>
+              </div>
+              <div class="col-md-12 col-xs-12">
+                <h4>EDUCATIONAL REQUIREMENTS</h4>
+                <ul>
+                  <li>Minimum of B.Sc. /HND or degree equivalent in Computer Science,Engineering or other related field of study.</li>
+                </ul>
+              </div>
+              <div class="col-md-12 col-xs-12">
+                <h4>OTHER SKILLS</h4>
+                <ul>
+                  <li>
+                    In luctus semper libero et fringilla. Nullam facilisis volutpat augue, non volutpat magna pretium nec. Cras venenatis hendrerit orci, eget ultricies libero tincidunt at. Nulla porta tristique pellentesque. Aenean ultrices dui in tincidunt accumsan. Mauris ac vulputate diam. Duis imperdiet sapien ac urna eleifend tincidunt. In aliquam ornare auctor.
+                  </li>
+                  <li>
+                    In luctus semper libero et fringilla. Nullam facilisis volutpat augue, non volutpat magna pretium nec. Cras venenatis hendrerit orci, eget ultricies libero tincidunt at. Nulla porta tristique pellentesque. Aenean ultrices dui in tincidunt accumsan. Mauris ac vulputate diam. Duis imperdiet sapien ac urna eleifend tincidunt. In aliquam ornare auctor.
+                  </li>
+                  <li>
+                    In luctus semper libero et fringilla. Nullam facilisis volutpat augue, non volutpat magna pretium nec. Cras venenatis hendrerit orci, eget ultricies libero tincidunt at. Nulla porta tristique pellentesque. Aenean ultrices dui in tincidunt accumsan. Mauris ac vulputate diam. Duis imperdiet sapien ac urna eleifend tincidunt. In aliquam ornare auctor.
+                  </li>
+                </ul>
+              </div>
+              <div class="col-md-12 col-xs-12 pull-right">
+                <button type="button" class="btn btn-raised btn-success btn-lg" onclick="url('{{url('job')}}/jobs?id=1')"><i class="icon wb-dropright"></i> Apply</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+@endsection

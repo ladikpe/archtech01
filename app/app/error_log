@@ -1,0 +1,1 @@
+[08-Dec-2019 20:41:15 UTC] PHP Fatal error:  Class 'Illuminate\Database\Eloquent\Model' not found in /home/thehcmatrix/public_html/ferma/app/document.php on line 7

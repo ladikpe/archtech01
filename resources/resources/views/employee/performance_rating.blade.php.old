@@ -1,0 +1,525 @@
+@extends('layouts.app')
+
+@section('content')
+<script src="{{ asset('global/vendor/jquery/jquery.js') }}"></script>
+<script type="text/javascript">
+	$(function(){  
+
+		@include('script.morris') 
+
+	//});
+
+</script>
+<?php  $jobdetail=app('App\Http\Controllers\EmployeeController')->getjobdetail(Auth::user()->job_id);
+
+$fiscal=app('App\Repositories\EmployeeRepository')->fiscalYear();
+
+
+
+?>
+<?php
+function countsex(array $directemps, $sex) 
+{
+	$count = 0;
+	for($i = 0; $i < count($directemps); $i++)
+	{
+		if($directemps[$i]==$sex)
+		{
+			$count+=1;
+		}
+	}
+	return $count;
+}
+
+function month($id)
+{
+	$retVal;
+	switch($id)
+	{
+		case 1:
+		$retVal = "Jan";
+		break;
+		case 2:
+		$retVal = "Feb";
+		break;
+		case 3:
+		$retVal = "Mar";
+		break;
+		case 4:
+		$retVal = "Apr";
+		break;
+		case 5:
+		$retVal = "May";
+		break;
+		case 6:
+		$retVal = "Jun";
+		break;
+		case 7:
+		$retVal = "Jul";
+		break;
+		case 8:
+		$retVal = "Aug";
+		break;
+		case 9:
+		$retVal = "Sep";
+		break;
+		case 10:
+		$retVal = "Oct";
+		break;
+		case 11:
+		$retVal = "Nov";
+		break;
+		case 12:
+		$retVal = "Dec";
+		break;
+	}
+	return $retVal;
+}
+?>
+<script>
+	function url(url,blank=0){
+		if(blank==0){
+			window.location=url;
+		}
+		else{
+			window.open(url,'_blank');
+		}
+	}
+	
+	$(function(){
+
+		$.get('{{url('project/stat')}}',{
+			
+			userid:{{$employee->id}}
+			
+		},function(data,status,xhr){
+			
+			if(xhr.status!=200){
+				return	toastr.error('Error Loading Project Stat');
+			}
+
+			donut =Morris.Donut({
+				element: 'projectstat',
+				resize: true,
+				colors: ["#e9595b", "#ccbb2a", "#95c197","#70c374"],
+				data: data,
+				hideHover: 'auto'
+
+			});
+		});
+		
+		
+		
+	});
+</script>
+<?php
+
+
+$deadline = app('App\Http\Controllers\LMController')->checkDeadline(); 
+$review   = app('App\Http\Controllers\LMController')->review(); 
+$disable='';
+
+?>
+<div class="page-header">
+	<h1 class="page-title">Line Manager Objectives</h1>
+	<ol class="breadcrumb">
+		<li class="breadcrumb-item"><a href="{{url('home')}}">Home</a></li>
+		<li class="breadcrumb-item"><a href="{{url('lm/objectives_c')}}">Performance Review</a></li>
+		<li class="breadcrumb-item active">Employee Performance Rating</li>
+	</ol>
+	<div class="page-header-actions">
+		<!--<a class="btn btn-sm btn-default btn-outline btn-round" href="{{url('/lm/objectives_c')}}">
+			<i class="icon wb-arrow-left" aria-hidden="true"></i>
+			<span class="hidden-sm-down">Back</span>
+		</a>-->
+
+		<select class="form-control" id="changeemp" data-plugin="select2" data-placeholder="Select Employee" data-allow-clear="true" style="width: 200px;" onchange="window.location='/lm/rate?isemp='+ $(this).val();">
+			<option value=""></option>
+			<optgroup label="Direct Employees">
+				@foreach($directemps as $direct)
+				<option value="{{$direct->id}}">{{$direct->name}}</option>
+				@endforeach
+			</optgroup>
+		</select>
+	</div>
+</div>
+
+
+<div class="page-content">
+
+	<div class="panel">
+		<div class="panel-body">
+			<div class="row row-lg">
+				<div class="col-md-9 col-xs-12">
+					<div class="table-responsive">
+						<?php $job = app('App\Http\Controllers\EmployeeController')->getjobdetail($employee->job_id); ?>
+						<div class="">
+							<div class="col-md-3">
+								<i class="icon wb-user m-r-10 btn-pure btn-success"></i> NAME
+							</div>
+							<div class="col-md-9">
+								@if(isset($employee->name)){{$employee->name}}@else NILL @endif
+								<p></p>
+							</div>
+							<div class="col-md-3">
+								<i class="icon wb-link m-r-10 btn-pure btn-info"></i> ID
+							</div>
+							<div class="col-md-9">
+								@if($employee->emp_num == '')NILL @else{{$employee->emp_num}}@endif
+								<p></p>
+							</div>
+							<div class="col-md-3">
+								<i class="icon wb-plugin m-r-10 btn-pure btn-warning"></i> JOB ROLE
+							</div>
+							<div class="col-md-9">
+								@if($job['title'] == '')NILL @else{{$job['title']}}@endif
+								<p></p>
+							</div>
+							<div class="col-md-3">
+								<i class="icon wb-mobile m-r-10 btn-pure btn-danger"></i> TEL
+							</div>
+							<div class="col-md-9">
+								@if($employee->phone_num == '')NILL @else{{$employee->phone_num}}@endif
+								<p></p>
+							</div>
+							<div class="col-md-3">
+								<i class="icon wb-map m-r-10 btn-pure btn-dark"></i> ADDRESS
+							</div>
+							<div class="col-md-9">
+								@if($employee->address == '')NILL @else{{$employee->address}}@endif
+							</div>
+						</div>					</div>
+					</div>
+
+					<div class="col-md-3 col-xs-12 pull-right">
+						<img class="img-rounded img-bordered img-bordered-primary" width="150" height="150" src="{{asset($employee->image)}}">
+					</div>
+				</div>
+			</div>
+			<div class="pull-right">
+
+			</div>
+		</div>
+		<?php $deadline = app('App\Http\Controllers\LMController')->checkDeadline(month($fiscal['start_month']), $fiscal['grace']); ?>
+		<?php $review   = app('App\Http\Controllers\LMController')->review(month($fiscal['start_month']), $fiscal['grace']); ?>
+		<?php $isDeadLine = app('App\Http\Controllers\LMController')->isDeadLine(); ?>
+
+		<div class="row row-lg">
+			<div class="col-md-12">
+				<div class="panel panel-bordered" style="margin-bottom: 4px;">
+					<div class="panel-heading">
+						<h3 style="display:inline-block" class="panel-title">PROJECT STATS <button onclick="url('{{url('/')}}/{{session('locale')}}/project/management?userid={{$employee->id}}',9)" class="btn btn-pure btn-success" title="view project" ><i class="wb wb-eye"></i></button></h3>
+						<h3 style="margin-top:12px;" class="pull-right panel-title">PERFORMANCE RATING CHART</h3>
+					</div>
+					<div class="panel-body">
+						<div class="col-md-4">
+
+							<div  id="projectstat">
+							</div>
+						</div>
+
+						<div class="col-md-8">
+							<div  id="pilotchart">
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>			
+		</div>
+		<div class="pull-right" style="height: 25px;">
+
+		</div>
+
+
+		@if(count($directemps) > 0)
+		@foreach($directemps as $direct)
+		<div class="row row-lg" @if($employee->id != $direct->id) style="display:none;" @endif>
+
+			<div class="col-md-12 col-xs-12">
+				<div class="panel panel-bordered nav-tabs-horizontal" data-plugin="tabs">
+					<div class="panel-heading">
+						<h3 class="panel-title">Performance Appraisal</h3>
+						<ul class="panel-actions panel-actions-keep">
+							<li>
+								<select class="form-control" id="rate_quarter">
+									<option value="0">-Select Quarter-</option>
+									<option value="1">First</option>
+									<option value="2">Second</option>
+									<option value="3">Third</option>
+									<option value="4">Fourth</option>
+								</select>
+							</li>
+						</ul>
+					</div>
+					<br>
+					<ul class="nav nav-tabs nav-tabs-line" role="tablist">
+						<li class="nav-item">
+							<a class="nav-link active" data-toggle="tab" href="#pilotapp{{$direct->id}}" aria-controls="" role="tab" aria-expanded="true">
+								<i class="icon wb-stats-bars" aria-hidden="true"></i> Pilot Goals
+							</a>
+						</li>
+						<li class="nav-item">
+							<a class="nav-link" data-toggle="tab" href="#lmapp{{$direct->id}}" aria-controls="" role="tab">
+								<i class="icon wb-arrow-shrink"></i>Stretch Goals
+							</a>
+						</li>
+						<li class="nav-item">
+							<a class="nav-link" data-toggle="tab" href="#idpapp{{$direct->id}}" aria-controls="" role="tab">
+								<i class="icon wb-user"></i>Individual Dev. Plans
+							</a>
+						</li>
+						<li class="nav-item">
+							<a class="nav-link" data-toggle="tab" href="#carapp{{$direct->id}}" aria-controls="" role="tab">
+								<i class="icon wb-library"></i>Career Aspirations
+							</a>
+						</li>
+						<li class="nav-item">
+							<a class="nav-link" data-toggle="tab" href="#dirapp{{$direct->id}}" aria-controls="" role="tab">
+								<i class="icon wb-reply"></i>Direct Reports
+							</a>
+						</li>
+					</ul>
+					<div class="panel-body">
+						<div class="tab-content">
+							<div class="tab-pane active" id="pilotapp{{$direct->id}}" role="tabpanel">
+								<div class="panel-group panel-group-simple" id="siteMegaAccordion" aria-multiselectable="true" role="tablist">
+									@if(count($pilots) > 0)
+									<?php $goalCounter = 0; $counter = 0; ?> 
+									@foreach($pilots as $pilot)
+									<?php $rating = app('App\Http\Controllers\LMController')->getRating($employee->id, $pilot->id); ?>
+
+									<div class="panel">
+										<div class="panel-heading" id="pilotHeading{{$pilot->id}}" role="tab">
+											<a class="panel-title" data-toggle="collapse" href="#pilotcollaps{{$pilot->id}}" data-parent="#siteMegaAccordion" aria-expanded="false" aria-controls="pilotcollaps{{$pilot->id}}">
+												<h5 class="text-primary">{{$pilot->commitment}}</h5>
+											</a>
+										</div>
+										<div class="panel-collapse collapse" id="pilotcollaps{{$pilot->id}}" aria-labelledby="pilotHeading{{$pilot->id}}" role="tabpanel">
+											<div class="panel-body">
+												<div class="row">
+													<div class="col-md-12 col-xs-12">
+														<h4 style="color: #ccc;">Objective(s)</h4>
+														<p>
+															{{$pilot->objective}}
+														</p>
+													</div>
+												</div>
+												<div class="row">
+													<div class="col-md-3 col-xs-12">
+														HR Rating	
+													</div>
+													<div class="col-md-3 col-xs-12">
+
+														@if($isDeadLine == "open" && Auth::user()->role == 3)
+														[Rating stars should be shown here.]
+														<div class="ratemp" id="{{$pilot->id}}"></div> <i id="hint{{$pilot->id}}"></i>
+														@else
+
+														@if( isset($rating) )
+
+														@if($rating['admin_rate'] != NULL)
+														{{$rating['admin_rate']}}
+														@else
+														[Not Yet Rated]
+														@endif
+
+														@endif
+
+														@endif
+														
+													</div>
+													<div class="col-md-6 col-xs-12">
+
+														@if($isDeadLine == "open" && Auth::user()->role == 3)
+														[No Comments Yet]
+														@else
+														@if( isset($rating) )
+														@if( $rating['admin_comment'] != NULL)
+														{{$rating['admin_comment']}}
+														@else
+														[No Matching Records Found]
+														@endif
+														@endif
+														@endif
+													</div>
+												</div>
+												<br>
+												<div class="row">
+													<div class="col-md-3 col-xs-12">
+														Line Manager Rating	
+													</div>
+													<div class="col-md-3 col-xs-12">
+
+														@if($isDeadLine == "open" && Auth::user()->role == 2)
+														<div class="ratemp" id="{{$pilot->id}}"></div> <i id="hint{{$pilot->id}}"></i>
+														@else
+														@if( isset($rating) )
+														@if($rating['lm_rate'] != NULL)
+														{{$rating['lm_rate']}}
+														@else
+														[Not Yet Rated]
+														@endif
+														@endif
+														@endif
+													</div>
+													<div class="col-md-6 col-xs-12">
+														
+														@if($isDeadLine == "open" & Auth::user()->role == 2)
+														[No Comments Yet]
+														@else
+														@if( isset($rating) )
+														@if( $rating['lm_comment'] != NULL)
+														{{$rating['lm_comment']}}
+														@else
+														[No Matching Records Found]
+														@endif
+														@endif
+														@endif
+													</div>
+												</div>
+											</div>
+										</div>
+									</div>
+									@endforeach
+									@else
+									<h3>[No Matching Records Found.]</h3>
+									@endif
+								</div>
+							</div>
+							<div class="tab-pane" id="lmapp{{$direct->id}}" role="tabpanel">
+								<?php $lmGoals = app('App\Repositories\EmployeeRepository')->getGoalTo($employee->linemanager_id, $employee->id, 1); ?>
+								@if(count($lmGoals) > 0)
+								<?php $lmCounter = 0; ?>
+								@foreach($lmGoals as $lmGoal)
+								<div class="row">
+									<div class="col-md-2">
+										{{$lmCounter+=1}}
+									</div>
+									<div class="col-md-3">
+										{{$lmGoal->objective}}
+									</div>
+									<div class="col-md-5">
+										{{$lmGoal->commitment}}
+									</div>
+								</div>
+								<br>
+								@endforeach
+								@else
+								<h3>[No Matching Records Found.]</h3>
+								@endif
+							</div>
+							<div class="tab-pane" id="idpapp{{$direct->id}}" role="tabpanel">
+								<?php $idpGoals = app('App\Repositories\EmployeeRepository')->getGoalTo($employee->linemanager_id, $employee->id, 3); ?>
+								@if(count($idpGoals) > 0)
+								<?php $idpCounter = 0; ?>
+								@foreach($idpGoals as $idpGoal)
+								<div class="row">
+									<div class="col-md-2">
+										{{$idpCounter+=1}}
+									</div>
+									<div class="col-md-3">
+										{{$idpGoal->objective}}
+									</div>
+									<div class="col-md-5">
+										{{$idpGoal->commitment}}
+									</div>
+								</div>
+								<br>
+								@endforeach
+								@else
+								<h3>[No Matching Records Found.]</h3>
+								@endif
+							</div>
+							<div class="tab-pane" id="carapp{{$direct->id}}" role="tabpanel">
+								<?php $careerGoals = app('App\Repositories\EmployeeRepository')->getGoalTo($employee->linemanager_id, $employee->id, 4); ?>
+								@if(count($careerGoals) > 0)
+								<?php $careerCounter = 0; ?>
+								@foreach($careerGoals as $careerGoal)
+								<div class="row">
+									<div class="col-md-2">
+										{{$careerCounter+=1}}
+									</div>
+									<div class="col-md-3">
+										{{$careerGoal->objective}}
+									</div>
+									<div class="col-md-5">
+										{{$careerGoal->commitment}}
+									</div>
+								</div>
+								@endforeach
+								@else
+								<h3>[No Matching Records Found.]</h3>
+								@endif
+							</div>
+							<div class="tab-pane" id="dirapp{{$direct->id}}" role="tabpanel">
+								<h3>[Coming Soon...]</h3>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		@endforeach
+		@endif
+
+
+
+	</div>
+
+
+	@if(count($pilots) > 0)
+	@foreach($pilots as $pilot)
+	<?php $adminrating = app('App\Http\Controllers\LMController')->getRating($employee->id, $pilot->id); ?>
+	<!-- Example Sidebar -->
+	<div class="example-wrap">
+		<div class="example">
+			<!-- Modal -->
+			<div class="modal fade" id="ratecomments{{$pilot->id}}" aria-hidden="true" aria-labelledby="examplePositionSidebar" role="dialog" tabindex="-1">
+				<div class="modal-dialog">
+					<div class="modal-content">
+						<div class="modal-header">
+							<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+								<span aria-hidden="true">×</span>
+							</button>
+							<h4 class="modal-title">{{$employee->name}}</h4>
+						</div>
+						<div class="modal-body">
+							<!--	<img class="img-rounded img-bordered img-bordered-primary" width="150" height="150" src="{{asset('storage')}}/{{$employee->image}}"> -->
+							<br>
+							<div class="form-group">
+								<label for="ratingval{{$pilot->id}}">Rating</label>
+								@if(Auth::user()->role == 3)
+								<input type="number" max="5" min="1" class="form-control" name="rating" id="ratingval{{$pilot->id}}" value="@if(count($adminrating) > 0){{$adminrating['admin_rate']}}@endif">
+								@else
+								<input type="number" max="5" min="1" class="form-control" name="rating" id="ratingval{{$pilot->id}}" value="@if(count($adminrating) > 0){{$adminrating['lm_rate']}}@endif">
+								@endif
+							</div>
+							<div class="form-group">
+								<label for="lmcomment{{$pilot->id}}">Comment</label>
+								@if(Auth::user()->role == 3)
+								<textarea class="form-control" id="lmcomment{{$pilot->id}}">@if(count($adminrating) > 0) @if($adminrating['admin_comment'] != NULL) {{$adminrating['admin_comment']}} @endif @endif</textarea>
+								@else
+								<textarea class="form-control" id="lmcomment{{$pilot->id}}">@if(count($adminrating) > 0) @if($adminrating['lm_comment'] != NULL) {{$adminrating['lm_comment']}} @endif @endif</textarea>
+								@endif
+							</div>
+						</div>
+						<div class="modal-footer">
+							<button type="button" class="btn btn-success btn-block" onclick="saverating({{$pilot->id}}, {{$employee->id}})">
+								<i class="fa fa-star"></i> 
+								<i class="fa fa-star"></i> 
+								Rate 
+								<i class="fa fa-star"></i> 
+								<i class="fa fa-star"></i>
+							</button>
+							<button type="button" class="btn btn-default btn-block" data-dismiss="modal">Close</button>
+						</div>
+					</div>
+				</div>
+			</div>
+			<!-- End Modal -->
+		</div>
+	</div>
+	<!-- End Example Sidebar -->
+	@endforeach
+	@endif
+	@endsection

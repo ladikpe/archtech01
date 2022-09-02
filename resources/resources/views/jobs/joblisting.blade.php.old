@@ -1,0 +1,251 @@
+@extends('layouts.app')
+
+@section('content')
+<script src="../../global/vendor/jquery/jquery.js"></script>
+<script>
+  function url(url)
+  {	
+   window.location=url;
+ }
+</script>
+
+<div class="page-header">
+  <h1 class="page-title">Jobs</h1>
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="javascript:void(0)">Available Jobs</a></li>
+    <li class="breadcrumb-item active">You are Here</li>
+  </ol>
+</div>
+
+<div class="panel">
+  <div class="panel-body">
+    <div class="row">
+      <div class="col-md-2 col-xs-12">
+        <div class="">
+          <h5>Filter Job Listing</h5>
+          <div class="panel-group panel-group-simple" id="siteMegaAccordion" aria-multiselectable="true" role="tablist">
+            <div class="panel">
+              <div class="panel-heading" id="siteMegaAccordionHeadingOne" role="tab">
+                <a class="panel-title" data-toggle="collapse" href="#siteMegaCollapseOne" data-parent="#siteMegaAccordion" aria-expanded="false" aria-controls="siteMegaCollapseOne">
+                  Experience
+                </a>
+              </div>
+              <div class="panel-collapse collapse" id="siteMegaCollapseOne" aria-labelledby="siteMegaAccordionHeadingOne" role="tabpanel">
+                <div class="panel-body">
+                  <select class="form-control" id="experience" data-plugin="select2" data-allow-clear="true">
+                    <option value="0">Any</option>
+                    <option value="1">Entry Level</option>
+                    <option value="2">1 - 3 Years</option>
+                    <option value="3">3 - 5 Years</option>
+                    <option value="4">5 - 7 Years</option>
+                    <option value="5">7 - 10 Years</option>
+                    <option value="6">10 - 15 Years</option>
+                    <option value="7">15+</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+            <div class="panel">
+              <div class="panel-heading" id="siteMegaAccordionHeadingTwo" role="tab">
+                <a class="panel-title collapsed" data-toggle="collapse" href="#siteMegaCollapseTwo" data-parent="#siteMegaAccordion" aria-expanded="false" aria-controls="siteMegaCollapseTwo">
+                  Job Level
+                </a>
+              </div>
+              <div class="panel-collapse collapse" id="siteMegaCollapseTwo" aria-labelledby="siteMegaAccordionHeadingTwo" role="tabpanel">
+                <div class="panel-body">
+                  <select class="form-control" id="joblev" data-plugin="select2" data-allow-clear="true">
+                    <option value="0">Any</option>
+                    <option value="1">Vocational/Unskilled Labour</option>
+                    <option value="2">Undergraduate/Internship/Vacation Job</option>
+                    <option value="3">Fresh Graduate/Graduate Internship/Entry Level</option>
+                    <option value="4">Experienced Hire</option>
+                    <option value="5">Company Staff</option>
+                    <option value="6">Director/Manager(C.E.O./C.F.O./C.O.O.)</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+            <div class="panel">
+              <div class="panel-heading" id="siteMegaAccordionHeadingThree" role="tab">
+                <a class="panel-title collapsed" data-toggle="collapse" href="#siteMegaCollapseThree" data-parent="#siteMegaAccordion" aria-expanded="false" aria-controls="siteMegaCollapseThree">
+                  Work Type
+                </a>
+              </div>
+              <div class="panel-collapse collapse" id="siteMegaCollapseThree" aria-labelledby="siteMegaAccordionHeadingThree" role="tabpanel">
+                <div class="panel-body">
+                  <select class="form-control" id="experience" data-plugin="select2" data-allow-clear="true">
+                    <option value="0">Any</option>
+                    <option value="1">Full-Time only</option>
+                    <option value="2">Contract only</option>
+                    <option value="3">Intern only</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+            <div class="panel">
+              <div class="panel-heading" id="siteMegaAccordionHeadingFour" role="tab">
+                <a class="panel-title" data-toggle="collapse" href="#siteMegaCollapseFour" data-parent="#siteMegaAccordion" aria-expanded="false" aria-controls="siteMegaCollapseFour">
+                  Location
+                </a>
+              </div>
+              <div class="panel-collapse collapse" id="siteMegaCollapseFour" aria-labelledby="siteMegaAccordionHeadingFour" role="tabpanel">
+                <div class="panel-body">
+                  <select class="form-control" id="experience" data-plugin="select2" data-allow-clear="true">
+                    <option value="0">Any</option>
+                    <option value="1">Entry Level</option>
+                    <option value="2">1 - 3 Years</option>
+                    <option value="3">3 - 5 Years</option>
+                    <option value="4">5 - 7 Years</option>
+                    <option value="5">7 - 10 Years</option>
+                    <option value="6">10 - 15 Years</option>
+                    <option value="7">15+</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+            <div class="panel">
+              <div class="panel-heading" id="siteMegaAccordionHeadingFive" role="tab">
+                <a class="panel-title" data-toggle="collapse" href="#siteMegaCollapseFive" data-parent="#siteMegaAccordion" aria-expanded="false" aria-controls="siteMegaCollapseFive">
+                  Specialization
+                </a>
+              </div>
+              <div class="panel-collapse collapse" id="siteMegaCollapseFive" aria-labelledby="siteMegaAccordionHeadingFive" role="tabpanel">
+                <div class="panel-body">
+                  <select class="form-control" id="experience" data-plugin="select2" data-allow-clear="true">
+                    <option value="0">Any</option>
+                    <option value="1">Information Technology</option>
+                    <option value="2">Marketing and Sales</option>
+                    <option value="3">Human Resource</option>
+                    <option value="4">I.T. Support</option>
+                    <option value="5">Legal Dept.</option>
+                    <option value="6">Health Dept.</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+            <div class="panel">
+              <div class="panel-heading" id="siteMegaAccordionHeadingSix" role="tab">
+                <a class="panel-title" data-toggle="collapse" href="#siteMegaCollapseSix" data-parent="#siteMegaAccordion" aria-expanded="false" aria-controls="siteMegaCollapseOne">
+                  Date Posted
+                </a>
+              </div>
+              <div class="panel-collapse collapse" id="siteMegaCollapseSix" aria-labelledby="siteMegaAccordionHeadingSix" role="tabpanel">
+                <div class="panel-body">
+                  <select class="form-control" id="dateposted" data-plugin="select2" data-allow-clear="true">
+                    <option value="0">Any</option>
+                    <option value="1">Today</option>
+                    <option value="2">Yesterday</option>
+                    <option value="3">Last week</option>
+                    <option value="4">2 weeks</option>
+                    <option value="5">Last 30 days</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+            <button class="btn btn-warning btn-block">Filter</button>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-10 col-xs-12 card-bordered card-outline-default fm-padd-border">
+        <h4 class="text-warning">
+          Web Developer 
+        </h4>
+        <div class="ribbon ribbon-clip ribbon-reverse ribbon-primary">
+          <span class="ribbon-inner" data-toggle="tooltip" title="Apply" onclick="url('{{url('job')}}/jobs?id=1')">
+            Apply Here
+          </span>
+        </div>
+        <div class="table-responsive">
+          <table class="table table-bordered">
+            <tbody>
+              <tr>
+                <th><i class="fa fa-map-marker"></i></th>
+                <th>Lagos</th>
+              </tr>
+              <tr>
+                <th><i class="fa fa-anchor"></i></th>
+                <th><label class="control-label">EXP:TEC-001</label></th>
+              </tr>
+              <tr>
+                <th><i class="fa fa-money"></i></th>
+                <th>#50,000.00 - #70,000.00 per month</th>
+              </tr>
+              <tr>
+                <th><i class="fa fa-navicon"></i></th>
+                <th>
+                  Lorem ipsum Dolor dolor enim Ut consequat tempor quis minim enim sit ad in qui Ut in ut elit minim quis eiusmod reprehenderit.
+                  Lorem ipsum Dolor dolor enim Ut consequat tempor quis minim enim sit ad in qui Ut in ut elit minim quis eiusmod reprehenderit.
+                </th>
+              </tr>
+              <tr>
+                <th colspan="2">
+                  <button type="button" class="btn btn-icon social-facebook" data-placement="top" data-toggle="tooltip" title="Share to Facebook">
+                    <i class="icon bd-facebook" aria-hidden="true"></i>
+                  </button>
+                  <button type="button" class="btn btn-icon social-twitter" data-placement="bottom" data-toggle="tooltip" title="Share to Twitter">
+                    <i class="icon bd-twitter" aria-hidden="true"></i>
+                  </button>
+                  <button type="button" class="btn btn-icon social-linkedin" data-placement="right" data-toggle="tooltip" title="Share to LinkedIn">
+                    <i class="icon bd-linkedin" aria-hidden="true"></i>
+                  </button>
+                </th>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="col-md-2 col-xs-12">
+      </div>
+      <div class="col-md-10 col-xs-12 card-bordered card-outline-default fm-padd-border">
+        <h4 class="text-warning">
+          Web Developer 
+        </h4>
+        <div class="ribbon ribbon-clip ribbon-reverse ribbon-primary">
+          <span class="ribbon-inner" data-toggle="tooltip" title="Apply" onclick="url('{{url('job')}}/jobs?id=1')">
+            Apply Here
+          </span>
+        </div>
+        <div class="table-responsive">
+          <table class="table table-bordered">
+            <tbody>
+              <tr>
+                <th><i class="fa fa-map-marker"></i></th>
+                <th>Lagos</th>
+              </tr>
+              <tr>
+                <th><i class="fa fa-anchor"></i></th>
+                <th><label class="control-label">EXP:TEC-001</label></th>
+              </tr>
+              <tr>
+                <th><i class="fa fa-money"></i></th>
+                <th>#50,000.00 - #70,000.00 per month</th>
+              </tr>
+              <tr>
+                <th><i class="fa fa-navicon"></i></th>
+                <th colspan="2">
+                  Lorem ipsum Dolor dolor enim Ut consequat tempor quis minim enim sit ad in qui Ut in ut elit minim quis eiusmod reprehenderit.
+                  Lorem ipsum Dolor dolor enim Ut consequat tempor quis minim enim sit ad in qui Ut in ut elit minim quis eiusmod reprehenderit.
+                </th>
+              </tr>
+              <tr>
+                <th colspan="2">
+                  <button type="button" class="btn btn-icon social-facebook" data-placement="top" data-toggle="tooltip" title="Share to Facebook">
+                    <i class="icon bd-facebook" aria-hidden="true"></i>
+                  </button>
+                  <button type="button" class="btn btn-icon social-twitter" data-placement="bottom" data-toggle="tooltip" title="Share to Twitter">
+                    <i class="icon bd-twitter" aria-hidden="true"></i>
+                  </button>
+                  <button type="button" class="btn btn-icon social-linkedin" data-placement="right" data-toggle="tooltip" title="Share to LinkedIn">
+                    <i class="icon bd-linkedin" aria-hidden="true"></i>
+                  </button>
+                </th>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+@endsection

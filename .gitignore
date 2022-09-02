@@ -1,0 +1,15 @@
+*.env
+!.gitignore
+/.idea
+.idea/workspace.xml
+composer.lock
+/vendor
+/fermavoting
+/storage/*.key
+/public/storage
+
+
+
+
+.env.example
+.env.example
